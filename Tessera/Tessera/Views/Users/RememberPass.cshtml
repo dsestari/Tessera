@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "RememberPass";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Remember Password</h2>
+
+@using (Html.BeginForm("RememberPass", "Users", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        <br />
+        <h2>Please enter your e-mail to access the system.</h2>
+        <br />
+        <div class="form-group">
+            <label for="email" class="col-md-2 control-label">E-mail</label>
+            <div class="col-md-10">
+                @Html.TextBox("email", null, new { @class = "form-control"})
+            </div>
+        </div>
+        <br />
+        @ViewBag.Message
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Send" class="btn btn-default"/>
+            </div>
+        </div>
+    </div>
+}
+

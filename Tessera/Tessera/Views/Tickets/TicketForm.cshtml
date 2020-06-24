@@ -1,0 +1,445 @@
+﻿@model Tessera.ViewModels.TicketFormViewModel
+
+@{
+	ViewBag.Title = "TicketForm";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*For Comment Section*@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+<script src="//js.pusher.com/4.0/pusher.min.js"></script>
+
+@*Remove attach*@
+<script language="javascript" type="text/javascript">
+	
+	function GetAttachId(_attachId){
+	
+		var url = "/Tickets/RemoveAttach/";	   
+
+		$.ajax({
+			type: "POST",
+			url: url,
+			cache: false,
+			data: { attachId: _attachId },
+			success: function(){
+				location.reload();
+			},
+			error: function (reponse) {
+				alert("error : " + reponse);
+			}            
+		});
+	}
+	 
+</script>
+
+	<style>
+		.user_name {
+			font-size: 14px;
+			font-weight: bold;
+		}
+
+	.comments-list .media {
+		border-bottom: 1px dotted #ccc;
+	}
+
+	a.RemoveAttach {
+
+		margin-left:15px;
+		color:red;
+		font-weight:bold;
+		text-decoration:none;
+
+	}
+	</style>
+
+	<h2>Registering Ticket</h2>
+	<br />
+
+
+	@using (Html.BeginForm("Save", "Tickets", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+	@Html.ValidationSummary(true, "Please fix the following errors")
+	<div class="form-group row">
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.OpeningDate)
+				@Html.TextBoxFor(m => m.Ticket.OpeningDate, new { @class = "form-control", @readonly = "readonly" })
+				@Html.ValidationMessageFor(m => m.Ticket.OpeningDate)
+			</div>
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.PriorityId)
+				@Html.DropDownListFor(m => m.Ticket.PriorityId, new SelectList(Model.Priorities, "Id", "Name"), "Select the priority", new { id = "priority", @class = "form-control", @onchange = "ChangeDueDate();" })
+				@Html.ValidationMessageFor(m => m.Ticket.PriorityId)
+			</div>
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.DueDate)
+				@Html.TextBoxFor(m => m.Ticket.DueDate, new { id = "dueDate", @class = "form-control", @readonly = "readonly" })
+				@Html.ValidationMessageFor(m => m.Ticket.DueDate)
+			</div>
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.TicketStatusId)
+				@if (@Model.Ticket.Id == 0)
+			{
+				@Html.DropDownListFor(m => m.Ticket.TicketStatusId, new SelectList(Model.TicketsStatus, "Id", "Name"), new { @class = "form-control", @readonly = "readonly" })
+			}
+			else
+			{
+				@Html.DropDownListFor(m => m.Ticket.TicketStatusId, new SelectList(Model.TicketsStatus, "Id", "Name"), new { @class = "form-control" })
+			}
+
+				@Html.ValidationMessageFor(m => m.Ticket.TicketStatusId)
+			</div>
+		</div>
+	<div class="form-group row">
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.UserName)
+				@Html.TextBoxFor(m => m.Ticket.UserName, new { @class = "form-control" })
+				@Html.ValidationMessageFor(m => m.Ticket.UserName)
+			</div>
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.UserMail)
+				@Html.TextBoxFor(m => m.Ticket.UserMail, new { @class = "form-control" })
+				@Html.ValidationMessageFor(m => m.Ticket.UserMail)
+			</div>
+		</div>
+	<div class="form-group row">
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.UserPhone)
+				@Html.TextBoxFor(m => m.Ticket.UserPhone, new { @class = "form-control" })
+				@Html.ValidationMessageFor(m => m.Ticket.UserPhone)
+			</div>
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.Address)
+				@Html.TextBoxFor(m => m.Ticket.Address, new { @class = "form-control" })
+				@Html.ValidationMessageFor(m => m.Ticket.Address)
+			</div>
+		</div>
+	<div class="form-group row">
+			<div class="col-lg-12">
+				@Html.LabelFor(m => m.Ticket.Summary)
+				@Html.TextBoxFor(m => m.Ticket.Summary, new { @class = "form-control" })
+				@Html.ValidationMessageFor(m => m.Ticket.Summary)
+			</div>
+		</div>
+	<div class="form-group row">
+			<div class="col-lg-12">
+				@Html.LabelFor(m => m.Ticket.Description)
+				@Html.TextAreaFor(m => m.Ticket.Description, new { @class = "form-control", style = "height: 225px;" })
+				@Html.ValidationMessageFor(m => m.Ticket.Description)
+			</div>
+		</div>
+	<div class="form-group row">
+			<div class="col-lg-3">
+				@Html.LabelFor(m => m.Ticket.GroupId)
+				@Html.DropDownListFor(m => m.Ticket.GroupId, new SelectList(Model.Groups, "Id", "Name"), new { @class = "form-control", @readonly = "readonly" })
+				@Html.ValidationMessageFor(m => m.Ticket.GroupId)
+			</div>
+			<div class="col-lg-3">
+				@Html.Label("Analyst")
+				@Html.DropDownListFor(m => m.Ticket.UserId, new SelectList(Model.Users, "Id", "Name"), new { id = "ddlUser", @class = "form-control", @readonly = "readonly" })
+				@Html.ValidationMessageFor(m => m.Ticket.UserId)
+			</div>
+		</div>
+	if (@Model.Ticket.Id != null && @Model.Ticket.Id > 0)
+	{
+		<div class="form-group row">
+				<div class="col-lg-12">
+					@Html.Label("Attachment")
+					@Html.TextBoxFor(m => m.Files, new { @type = "file", @name = "files", @multiple = "multiple", id = "fileUpload" })
+				</div>
+			</div>
+		if (@Model.Attachments != null && @Model.Attachments.Count() > 0)
+		{
+			<div class="form-group row">
+					<div class="col-lg-12">
+						@Html.Label("Attachments")
+						<br />
+						@foreach (var item in @Model.Attachments)
+					{
+						<ul style="display:inline; list-style-type: none;">
+								@if (item.Extension.ToLower() == ".jpg")
+							{
+								<li>
+										<a href="@Url.Content(item.Path)" title="@item.FileName">
+											<img alt="List View" src="@Url.Content("~/Content/TmpTicketFiles/TmpAttachIcons/jpg-icon.png")" style="width: 4%;">
+											@item.FileName
+										</a>                                       
+										@Html.ActionLink("X", "RemoveAttach", null, new { @class = "RemoveAttach", id = item.Id, onclick = "javascript:GetAttachId(" + item.Id + ");" })
+								</li>
+							}
+							else if (item.Extension.ToLower() == ".docx")
+							{
+								<li>
+										<a href="@Url.Content(item.Path)" title="@item.FileName">
+											<img alt="List View" src="@Url.Content("~/Content/TmpTicketFiles/TmpAttachIcons/doc-icon.png")" style="width: 4%;">
+											@item.FileName
+										</a>
+										@Html.ActionLink("X", "RemoveAttach", null, new { @class = "RemoveAttach", id = item.Id, onclick = "javascript:GetAttachId(" + item.Id + ");" })
+									</li>
+							}
+							else if (item.Extension.ToLower() == ".pdf")
+							{
+								<li>
+										<a href="@Url.Content(item.Path)" title="@item.FileName">
+											<img alt="List View" src="@Url.Content("~/Content/TmpTicketFiles/TmpAttachIcons/pdf-icon.png")" style="width: 4%;">
+											@item.FileName
+										</a>
+										@Html.ActionLink("X", "RemoveAttach", null, new { @class = "RemoveAttach", id = item.Id, onclick = "javascript:GetAttachId(" + item.Id + ");" })
+									</li>
+							}
+							else if (item.Extension.ToLower() == ".txt")
+							{
+								<li>
+										<a href="@Url.Content(item.Path)" title="@item.FileName">
+											<img alt="List View" src="@Url.Content("~/Content/TmpTicketFiles/TmpAttachIcons/txt-icon.png")" style="width: 4%;">
+											@item.FileName
+										</a>
+										 @Html.ActionLink("X", "RemoveAttach", null, new { @class = "RemoveAttach", id = item.Id, onclick = "javascript:GetAttachId(" + item.Id + ");" })
+									</li>
+							}
+							else
+							{
+								<li>
+										<a href="@Url.Content(item.Path)" title="@item.FileName">
+											<img alt="List View" src="@Url.Content("~/Content/TmpTicketFiles/TmpAttachIcons/file-icon.png")" style="width: 4%;">
+											@item.FileName
+										</a>
+										 @Html.ActionLink("X", "RemoveAttach", null, new { @class = "RemoveAttach", id = item.Id, onclick = "javascript:GetAttachId(" + item.Id + ");" })
+									</li>
+							}
+							</ul>
+					}
+					</div>
+				</div>
+		}
+	}
+	@Html.HiddenFor(m => m.Ticket.Id)
+	@Html.AntiForgeryToken()
+	<button type="submit" class="btn btn-primary">Save</button>
+}
+
+	<br />
+
+	@if (@Model.Ticket.Id > 0)
+{
+	using (Html.BeginForm("Comment", "Tickets"))
+	{
+		<div id="app">
+				<div>
+					<h4>Posts section</h4>
+					<hr />
+				</div>
+				<div class="container">
+					<div class="row">
+						<div class="col-md-8">
+							<div class="page-header">
+								<h1><small class="pull-right">{{comments.length}} comments</small> All comments </h1>
+							</div>
+							<div class="comments-list">
+								<div class="media" v-for="com in comments">
+									<div class="media-body">
+										<h4 class="media-heading user_name">{{com.UserName}} <span style="font-weight: 100;"> in {{moment(com.CreatedDate).format("DD/MM/YYYY h:m:s A")}}</span></h4>
+										{{com.CommentText}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="container">
+					<br />
+					<form onsubmit="return false;">
+						<input type="text" id="UserName" v-model="comment.UserName" class="form-control" readonly="readonly" />
+						<textarea rows="3" placeholder="Write a comment..." id="CommentText" v-model="comment.CommentText" class="form-control"></textarea>
+						<br />
+						<button class="btn btn-success" v-on:click="submit_comment()">Comment</button>
+					</form>
+				</div>
+			</div>
+	}
+}
+
+	@section scripts{
+		
+		@Scripts.Render("~/Scripts/jquery.validate.min.js")
+		@Scripts.Render("~/Scripts/jquery.validate.unobtrusive.min.js")
+		@Scripts.Render("~/Scripts/moment.js")
+		@Scripts.Render("~/bundles/jqueryval")
+
+		@*DueDate Section*@
+		<script type="text/javascript">
+
+			function ChangeDueDate() {
+				var ddlValue = document.getElementById("priority");
+				var strList = ddlValue.options[ddlValue.selectedIndex].value;
+
+				if (strList == 1) {
+					document.getElementById("dueDate").value = addDays(7);
+				}
+				else if (strList == 2) {
+					document.getElementById("dueDate").value = addDays(3);
+				}
+				else if (strList == 3) {
+					document.getElementById("dueDate").value = addDays(2);
+				}
+				else if (strList == 4) {
+					document.getElementById("dueDate").value = addDays(1);
+				}
+				else {
+					document.getElementById("dueDate").value = addCriticalDays(5);
+				}
+			};
+
+	function addDays(days) {
+
+		var today = new Date();
+		today.setDate(today.getDate() + days);
+
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		dd = dd < 10 ? '0' + dd : dd;
+		mm = mm < 10 ? '0' + mm : mm;
+
+		var today = dd + '/' + mm + '/' + yyyy + ' ' + formatAMPM();
+
+		return today;
+	};
+
+	function formatAMPM() {
+
+		var date = new Date();
+		var hours = date.getHours();
+		var minutes = date.getMinutes();
+		var seconds = date.getSeconds();
+		var ampm = hours >= 12 ? 'PM' : 'AM';
+
+		hours = hours % 12;
+		hours = hours ? hours : 12; // the hour '0' should be '12'
+		hours = hours < 10 ? '0' + hours : hours;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		seconds = seconds < 10 ? '0' + seconds : seconds;
+
+		var strTime = hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+
+		return strTime;
+	};
+
+	function addCriticalDays(hours) {
+
+		var today = new Date();
+		today.setDate(today.getDate());
+
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		dd = dd < 10 ? '0' + dd : dd;
+		mm = mm < 10 ? '0' + mm : mm
+
+		var today = dd + '/' + mm + '/' + yyyy + ' ' + formatAndAddCriticalHoursAMPM(hours);
+
+		return today;
+	};
+
+	function formatAndAddCriticalHoursAMPM(hour) {
+
+		var date = new Date();
+		var hours = date.getHours() + hour;
+		var minutes = date.getMinutes();
+		var seconds = date.getSeconds();
+		var ampm = hours >= 12 ? 'PM' : 'AM';
+
+		hours = hours % 12;
+		hours = hours ? hours : 12; // the hour '0' should be '12'
+		hours = hours < 10 ? '0' + hours : hours;
+		minutes = minutes < 10 ? '0' + minutes : minutes;
+		seconds = seconds < 10 ? '0' + seconds : seconds;
+
+		var strTime = hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+
+		return strTime;
+	};
+
+	$(function () {
+		$.validator.methods.date = function (value, element) {
+			return this.optional(element) || moment(value, "DD/MM/YYYY h:m:s A", true).isValid();
+		}
+	});
+
+</script>
+
+	@*Comment Section*@
+	<script>
+
+		var pusher = new Pusher('061b527eb5827cad94e3', { cluster: 'eu' });
+
+		var my_channel = pusher.subscribe('asp_channel');
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				comments: [],
+				comment: {
+					UserName: '',
+					CommentText: '',
+					TicketId: @Model.Ticket.Id
+					}
+			},
+			created: function() {
+				this.get_comments();
+				this.listen();
+				this.getUserName();
+			},
+			methods: {
+				get_comments: function() {
+
+					axios.get('@Url.Action("Comments", "Tickets", new { id = @Model.Ticket.Id }, protocol: Request.Url.Scheme)').then((response) => {
+						this.comments = response.data;
+				});
+		},
+
+		listen: function() {
+
+			my_channel.bind("asp_event", (data) => {
+				if (data.TicketId == this.comment.TicketId) {
+					this.comments.push(data);
+		}
+		})
+		},
+
+		getUserName: function() {
+
+			this.comment.UserName  = document.getElementById("liUser").innerHTML;
+		},
+
+		submit_comment: function() {
+
+			axios.post('@Url.Action("Comment", "Tickets", new {}, protocol: Request.Url.Scheme)', this.comment).then((response) => {
+				this.comment.UserName = '';
+			this.comment.CommentText = '';
+			this.comment.UserId = '';
+
+			window.location.href = this.comment.TicketId;
+		});
+		}
+		}
+		});
+
+	</script>
+
+	@*FileUpload Section*@
+	<script type="text/x-jquery-tmpl">
+	
+			$('#fileUpload').fileupload({
+				dataType: 'json',
+				done: function (e, data) {
+					$.each(data.result.files, function (index, file) {
+						$('<p/>').text(file.name).appendTo(document.body);
+					});
+				}
+			});
+		
+	</script>
+}

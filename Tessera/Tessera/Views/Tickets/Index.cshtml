@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Tessera.Models.Ticket>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Tickets</h2>
+
+<p>
+    @Html.ActionLink("New Ticket", "New", "Tickets", null, new { @class = "btn btn-primary"})
+</p>
+
+<br />
+<h3>Own queue</h3>
+<br />
+
+<table id="ticketsUser" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Ticket Number</th>
+            <th>Group</th>
+            <th>User Name</th>
+            <th>Opening Date</th>
+            <th>Summary</th>
+            <th>Status</th>
+            <th>Priority</th>
+        </tr>        
+    </thead>
+    <tbody></tbody>
+</table>
+
+<br />
+<h3>Group queue</h3>
+<br />
+
+<table id="ticketsGroup" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Ticket Number</th>
+            <th>Group</th>
+            <th>Analyst</th>
+            <th>User Name</th>
+            <th>Opening Date</th>
+            <th>Summary</th>
+            <th>Status</th>
+            <th>Priority</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+

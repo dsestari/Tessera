@@ -1,0 +1,36 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Tessera.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="UserEmailService" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tesserasystem@gmail.com</Value>
+    </Setting>
+    <Setting Name="UserPasswordService" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">dGVzc2VyQDIwMTg=</Value>
+    </Setting>
+    <Setting Name="SMTPHostEmailService" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">smtp.gmail.com</Value>
+    </Setting>
+    <Setting Name="SMTPPortEmailService" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">587</Value>
+    </Setting>
+    <Setting Name="UploadPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">~/Content/TmpTicketFiles</Value>
+    </Setting>
+    <Setting Name="AttachIconPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">~/Content/TmpTicketFiles/TmpAttachIcons</Value>
+    </Setting>
+    <Setting Name="PusherServerCluster" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">eu</Value>
+    </Setting>
+    <Setting Name="PusherServerAppId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">690015</Value>
+    </Setting>
+    <Setting Name="PusherServerAppKey" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">061b527eb5827cad94e3</Value>
+    </Setting>
+    <Setting Name="PusherServerAppSecret" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">6d71cda689a0f65cb524</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
